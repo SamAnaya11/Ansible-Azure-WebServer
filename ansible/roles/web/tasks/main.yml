@@ -1,0 +1,68 @@
+---
+# Tareas del rol "web": instalar nginx y publicar una web estática.
+# Todas son idempotentes: si el estado ya es el deseado, no cambian nada.
+
+- name: Actualizar la caché de apt (solo si tiene más de 1 hora)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Instalar nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+- name: Crear la carpeta raíz de la web
+  ansible.builtin.file:
+    path: "{{ web_raiz }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Desplegar la configuración del sitio desde la plantilla
+  ansible.builtin.template:
+    src: labweb.conf.j2
+    dest: "/etc/nginx/sites-available/{{ web_nombre_sitio }}.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: configuracion nginx cambiada
+
+- name: Activar el sitio (enlace en sites-enabled)
+  ansible.builtin.file:
+    src: "/etc/nginx/sites-available/{{ web_nombre_sitio }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ web_nombre_sitio }}.conf"
+    state: link
+  notify: configuracion nginx cambiada
+
+# El sitio "default" de nginx también es default_server en el puerto 80
+# y chocaría con el nuestro ("duplicate default server").
+- name: Desactivar el sitio por defecto de nginx
+  ansible.builtin.file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  notify: configuracion nginx cambiada
+
+# Copia archivo a archivo (bucle) en lugar del directorio completo: copy
+# con un directorio como origen no muestra el diff en --check --diff.
+# fileglob busca en files/ del rol y devuelve los archivos de primer nivel
+# (no recorre subcarpetas). Un archivo nuevo en files/web/ se incluye solo.
+# No notifica al handler: nginx sirve los archivos estáticos sin recargar.
+- name: Copiar los archivos de la web
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ web_raiz }}/{{ item | basename }}"
+    owner: root
+    group: root
+    mode: "0644"
+  loop: "{{ lookup('ansible.builtin.fileglob', 'web/*', wantlist=True) | sort }}"
+  loop_control:
+    # Muestra solo el nombre del archivo, no la ruta completa en /mnt/c
+    label: "{{ item | basename }}"
+
+- name: Asegurar que nginx está arrancado y habilitado al inicio
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

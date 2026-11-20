@@ -1,0 +1,10 @@
+---
+# Playbook principal: configura las VMs del grupo [web] del inventario
+# aplicando el rol "web" (nginx + web estática).
+- name: Configurar servidor web nginx
+  hosts: web
+  # Instalar paquetes y escribir en /etc/nginx requiere privilegios de root (sudo)
+  become: true
+
+  roles:
+    - web

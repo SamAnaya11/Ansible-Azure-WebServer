@@ -1,0 +1,45 @@
+# ---------------------------------------------------------------
+# Terraform
+# ---------------------------------------------------------------
+# Directorio de providers y módulos descargados por terraform init
+.terraform/
+
+# State local: contiene IPs, IDs de suscripción y de recursos
+*.tfstate
+*.tfstate.*
+
+# Planes guardados con terraform plan -out
+tfplan
+*.tfplan
+
+# Variables reales (IP pública de administración). Solo se versiona el .example
+terraform.tfvars
+*.auto.tfvars
+
+# Logs de errores y archivos de override locales
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# NOTA: .terraform.lock.hcl SÍ se versiona (fija los hashes de los providers).
+
+# ---------------------------------------------------------------
+# Ansible
+# ---------------------------------------------------------------
+# Inventario generado por Terraform: contiene la IP pública de la VM
+ansible/inventory/hosts.ini
+*.retry
+
+# ---------------------------------------------------------------
+# Claves y secretos (nunca deben estar en el repositorio)
+# ---------------------------------------------------------------
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+*_ed25519
+*_ed25519.pub
+.env

@@ -1,0 +1,16 @@
+---
+# Variables por defecto del rol "web".
+# Tienen la prioridad más baja: se pueden sobrescribir desde el
+# inventario, el playbook o la línea de comandos (-e) sin tocar el rol.
+
+# Carpeta de la web en la VM
+web_raiz: /var/www/labweb
+
+# Puerto en el que escucha nginx (debe coincidir con la regla del NSG)
+web_puerto: 80
+
+# "_" = cualquier nombre de host (accedemos por IP, sin dominio)
+web_server_name: "_"
+
+# Nombre del archivo de configuración del sitio en /etc/nginx/sites-available
+web_nombre_sitio: labweb

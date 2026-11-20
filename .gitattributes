@@ -1,0 +1,13 @@
+# Los archivos se editan en Windows pero se ejecutan en Linux (WSL y la VM).
+# Forzamos finales de línea LF en todos los archivos de texto para evitar
+# errores en YAML, plantillas Jinja2, scripts y configuración de nginx.
+* text=auto eol=lf
+
+# Archivos binarios: Git no debe tocar su contenido.
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.pdf  binary

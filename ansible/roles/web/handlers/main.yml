@@ -1,0 +1,21 @@
+---
+# Handlers del rol "web".
+# Solo se ejecutan si alguna tarea que los notifica termina en "changed",
+# una única vez al final del play aunque se notifiquen varias veces.
+# Ambos escuchan el mismo aviso y se ejecutan en este orden:
+# primero se valida la configuración y solo después se recarga.
+
+- name: Validar la configuración de nginx
+  ansible.builtin.command: nginx -t
+  # Solo comprueba la sintaxis: no cambia nada en el servidor
+  changed_when: false
+  listen: configuracion nginx cambiada
+
+# reload (no restart): aplica la configuración nueva sin cortar conexiones.
+# Si la validación anterior falla, Ansible se detiene y nginx sigue
+# funcionando con la configuración anterior.
+- name: Recargar nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
+  listen: configuracion nginx cambiada

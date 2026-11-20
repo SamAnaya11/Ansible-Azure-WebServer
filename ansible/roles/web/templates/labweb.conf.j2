@@ -1,0 +1,32 @@
+# {{ ansible_managed }}
+# Sitio "{{ web_nombre_sitio }}": web estática publicada por el rol "web".
+# Cualquier cambio manual en la VM se sobrescribirá en la próxima ejecución.
+
+server {
+    # Sitio por defecto en el puerto {{ web_puerto }} (IPv4 e IPv6)
+    listen {{ web_puerto }} default_server;
+    listen [::]:{{ web_puerto }} default_server;
+
+    server_name {{ web_server_name }};
+
+    # Carpeta de la web y página de inicio
+    root {{ web_raiz }};
+    index index.html;
+
+    # No revelar la versión de nginx en cabeceras ni páginas de error
+    server_tokens off;
+
+    # Cabecera de demostración (experimento D): cambio en la plantilla -> handler
+    add_header X-Gestionado-Por "Ansible" always;
+
+    location / {
+        # Sirve el archivo o la carpeta pedidos; si no existen, error 404
+        try_files $uri $uri/ =404;
+    }
+
+    # Página de error personalizada (no accesible directamente)
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+    }
+}
